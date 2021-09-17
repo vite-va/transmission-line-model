@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p id="demo"></p>
+<canvas id="myCanvas" width="730" height="360"
+style="border:1px solid #d3d3d3;">
+Your browser does not support the canvas element.
+</canvas>
+<button onclick="stopDraw()"> Pause </button>
+<button onclick="resumeDraw()"> Resume </button>
+<script>
+
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var i;
+const drawSinWave = function (d, maxDegree) {
+ 	var x=0,y=180 + Math.sin(d/90*Math.PI)*60;
+ 	for(i=1; i<=maxDegree; i+=1) {
+ 		ctx.moveTo(x,y);
+ 		x = i;
+		y = 180 + Math.sin((x + d)/90*Math.PI)*60;
+		ctx.lineTo(x,y);
+	}
+ctx.stroke();
+}
+
+const drawSinWaveReverse = function (d, maxDegree) {
+ 	var x=720,y=180 - Math.sin((720 + d)/90*Math.PI)*60;
+ 	for(i=720 - 1; i>=(720 - maxDegree); i--) {
+ 		ctx.moveTo(x,y);
+ 		x = i;
+		y = 180 - Math.sin((720 - x + d)/90*Math.PI)*60;
+		ctx.lineTo(x,y);
+	}
+ctx.stroke();
+}
+
+const drawSinWaveTotal = function (d, maxDegree) {
+ 	var x=720,y=180 + Math.sin(d/90*Math.PI)*60 - Math.sin((720 + d)/90*Math.PI)*60;
+     var z;
+ 	for(z=720 - 1; z>=(720 - maxDegree); z--){
+ 		ctx.moveTo(x,y);
+ 		x = z;
+		y = 180 + Math.sin((x + d)/90*Math.PI)*60
+            - Math.sin((720 - x + d)/90*Math.PI)*60;
+		ctx.lineTo(x,y);
+	}
+ctx.stroke();
+}
+
+var t = 0;
+var maxDeg = 0, count = 0, maxDegRv = 0;
+var myDraw = setInterval(beginDraw, 16);
+
+function beginDraw() {
+		setTimeout(clearDraw, 15);
+        ctx.beginPath();
+        ctx.strokeStyle = "black";
+        ctx.moveTo(0,180);
+        ctx.lineTo(720,180);
+        ctx.stroke();
+        ctx.moveTo(720,0);
+        ctx.lineTo(720,360);
+        ctx.stroke();
+        maxDeg = t;
+        if (count === 1) maxDeg = 720;
+        ctx.beginPath();
+        ctx.strokeStyle = "green";
+        drawSinWave(-t, maxDeg);
+    if (count === 1) {
+        maxDegRv++;
+        if (maxDegRv > 720) maxDegRv = 720;
+        ctx.beginPath();
+        ctx.strokeStyle = "red";
+        drawSinWaveReverse(-t, maxDegRv);
+        ctx.beginPath();
+        ctx.strokeStyle = "blue";
+        drawSinWaveTotal(-t, maxDegRv);
+    }
+        t+=1;
+        if (t === 720) {
+            t=0; 
+            count++;
+            if (count > 1) count = 1;
+        }
+        document.getElementById("demo").innerHTML = "z: " + t;
+}
+
+function stopDraw() {
+    ctx.save();
+    ctx.clip();
+	clearInterval(myDraw);
+}
+
+function resumeDraw() {
+    ctx.restore();
+    myDraw = setInterval(beginDraw, 16);
+}
+
+function clearDraw() {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //ctx.restore();
+}
+
+</script>
+
+</body>
+</html>
